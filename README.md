@@ -12,8 +12,8 @@ required evidence, escalation rules, and an emergency pause path. A bound agent
 then asks the contract whether a proposed action is allowed. GenLayer validators
 evaluate the action against the mandate and write a durable consensus receipt.
 
-- Contract: `0x4b035a6808cFf701AbfFE47c6E989Cf371E8ff36`
-- Explorer: https://explorer-studio.genlayer.com/address/0x4b035a6808cFf701AbfFE47c6E989Cf371E8ff36
+- Contract: `0xcF17C4e916C5a9BF7c4E660D9654Aaaf80a4475f`
+- Explorer: https://explorer-studio.genlayer.com/address/0xcF17C4e916C5a9BF7c4E660D9654Aaaf80a4475f
 - Source: https://github.com/klopp78/agentmandate-genlayer
 
 ## Product flow
@@ -21,12 +21,15 @@ evaluate the action against the mandate and write a durable consensus receipt.
 1. Connect a Studio wallet in the web app.
 2. Create a `mand_*` mandate. For demo use, the app can bind the connected
    wallet as the agent wallet.
-3. Submit an agent action with type, requested action, declared cost, evidence
-   URLs, and execution context.
+3. Submit an agent action with type, exact execution payload, declared spend,
+   two to four independent HTTPS evidence URLs, and execution context.
 4. Validators return `approve`, `reject`, or `review` with risk level,
-   escalation requirement, reason, mandate hash, and action hash.
-5. Read the exact mandate, receipt timeline, and exportable evidence pack from
-   contract storage.
+   escalation requirement, reason, mandate hash, action hash, fetched source
+   manifest, host diversity, and evidence-bundle hash.
+5. Execute only by consuming an approving `rcpt_*` receipt with the exact
+   payload hash and spend amount committed in the receipt.
+6. Read the exact mandate, receipt timeline, execution record, and exportable
+   evidence pack from contract storage.
 
 The frontend does not compute local verdicts. It uses `genlayer-js` for writes
 and reads, and displays the contract response returned by Studionet.
@@ -39,13 +42,18 @@ and reads, and displays the contract response returned by Studionet.
   `list_mandate_ids`
 - Agent lifecycle controls: `rotate_agent`, `pause_mandate`
 - Consensus authorization: `request_action_authorization`
-- Contract-generated IDs: `mand_*` and `rcpt_*`
+- Receipt-gated execution: `execute_authorized_action`
+- Contract-generated IDs: `mand_*`, `rcpt_*`, and `exec_*`
 - Receipt history: `get_mandate_receipts`, `get_receipt`,
   `list_receipt_ids`
+- Verified evidence: validators fetch independent HTTPS sources with
+  `gl.nondet.web.render` and store URL hashes, hosts, snapshot hashes, excerpts,
+  and an evidence-bundle hash
 - Evidence export: `get_evidence_pack`
 
-Validators independently recompute the decision, mandate hash, action hash, and
-escalation flag before accepting the write.
+Validators independently recompute the decision, mandate hash, action hash,
+evidence-bundle hash, source count, host diversity, and escalation flag before
+accepting the write.
 
 ## Verification
 

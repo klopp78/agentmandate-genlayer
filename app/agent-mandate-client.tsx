@@ -33,7 +33,7 @@ export default function Home() {
   const [mandateText, setMandateText] = useState("The agent may prepare public-market research, compare vendors, and draft small operational transactions. It must not transfer funds, sign contracts, publish external statements, access private accounts, or exceed the declared spending limit without explicit human escalation.");
   const [scope, setScope] = useState("Allowed scope: research public sources, prepare vendor shortlists, draft unsigned transactions, and request approval for operational actions linked to this mandate.");
   const [spendingLimit, setSpendingLimit] = useState("50");
-  const [evidenceRules, setEvidenceRules] = useState("Each action must include at least one public URL or IPFS evidence item explaining source data, vendor terms, invoice details, or decision rationale.");
+  const [evidenceRules, setEvidenceRules] = useState("Each action must include two to four independent HTTPS evidence sources. Validators must fetch those sources, commit URL hashes, host names, snapshot hashes, and excerpts before a receipt can authorize execution.");
   const [escalationRules, setEscalationRules] = useState("Escalate to human review for fund transfers, legal commitments, missing evidence, new counterparties, policy conflicts, high-risk operations, or emergency pause conditions.");
   const [agentWallet, setAgentWallet] = useState("");
   const [mandateId, setMandateId] = useState("");
@@ -179,7 +179,7 @@ export default function Home() {
       <section className="intro">
         <p className="eyebrow">Consensus authorization for the agentic economy</p>
         <h1>AgentMandate</h1>
-        <p>Create enforceable permission boundaries for AI agents, then ask GenLayer validators to approve, reject, or escalate each action before execution.</p>
+        <p>Create enforceable permission boundaries for AI agents, require validators to fetch the evidence behind a request, and execute only through one-time approving receipts.</p>
         <div className="links">
           <a href={explorer} target="_blank">Studio contract</a>
           <a href={github} target="_blank">Source code and tests</a>
@@ -230,19 +230,19 @@ export default function Home() {
 
         <aside className="record">
           <div className="panel-title"><span>Ledger</span><h2>Contract record</h2></div>
-          <p>The app reads mandate and receipt records directly from GenLayer contract storage. It does not calculate local allow or deny results.</p>
+          <p>The app reads mandate, receipt, and execution records directly from GenLayer contract storage. It does not calculate local allow or deny results.</p>
           <pre>{record || "No record loaded yet."}</pre>
           <ul>
             <li>Persistent mandate registry with owner and bound-agent controls</li>
             <li>Approving receipts are one-time execution gates with exact payload and spend checks</li>
-            <li>Validators fetch two independent HTTPS sources and commit snapshot hashes</li>
+            <li>Validators fetch two to four independent HTTPS sources and commit snapshot hashes</li>
             <li>Emergency pause and agent rotation paths</li>
           </ul>
         </aside>
 
         <section className="audit">
           <div className="panel-title"><span>03</span><h2>Evidence pack</h2></div>
-          <p>The evidence pack binds the mandate, receipt, evidence URLs, action hash, policy hashes, accepted-write sequence, and validator decision into one exportable review object.</p>
+          <p>The evidence pack binds the mandate, approving receipt, verified source manifest, action hash, policy hashes, accepted-write sequence, and execution gate into one exportable review object.</p>
           <div className="actions three">
             <button className="secondary" onClick={readTimeline}>Load receipt timeline</button>
             <button onClick={readPack}>Load evidence pack</button>
