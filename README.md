@@ -1,5 +1,11 @@
 # AgentMandate for GenLayer
 
+## Receipt-gated execution and verified evidence
+
+AgentMandate v2 does not treat a verdict as an informational log. A bound agent can call `execute_authorized_action` only with a one-time `approve` receipt, the exact payload and spend amount committed in that receipt, and an active mandate. Replayed receipts, `review` or `reject` verdicts, escalations, altered payloads, and altered spend amounts all fail on-chain.
+
+Before a receipt is written, every validator independently renders two to four distinct HTTPS sources with `gl.nondet.web.render`. The receipt stores the committed URL, host, URL hash, snapshot hash, excerpt, and evidence-bundle hash that informed consensus.
+
 AgentMandate is a GenLayer-native authorization layer for autonomous AI agents.
 A human creates an enforceable mandate with permitted scope, spending limits,
 required evidence, escalation rules, and an emergency pause path. A bound agent

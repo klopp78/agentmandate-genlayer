@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 import {
   AGENT_MANDATE_ADDRESS,
   readEvidencePack,
+  readExecution,
   readLatestMandateId,
+  readLatestExecutionId,
   readLatestReceiptId,
   readMandate,
   readMandateReceipts,
@@ -30,7 +32,7 @@ export default function Home() {
   const [title, setTitle] = useState("Treasury Research Agent Mandate");
   const [mandateText, setMandateText] = useState("The agent may prepare public-market research, compare vendors, and draft small operational transactions. It must not transfer funds, sign contracts, publish external statements, access private accounts, or exceed the declared spending limit without explicit human escalation.");
   const [scope, setScope] = useState("Allowed scope: research public sources, prepare vendor shortlists, draft unsigned transactions, and request approval for operational actions linked to this mandate.");
-  const [spendingLimit, setSpendingLimit] = useState("Maximum autonomous spend: 50 USDC equivalent per action and 200 USDC equivalent per week.");
+  const [spendingLimit, setSpendingLimit] = useState("50");
   const [evidenceRules, setEvidenceRules] = useState("Each action must include at least one public URL or IPFS evidence item explaining source data, vendor terms, invoice details, or decision rationale.");
   const [escalationRules, setEscalationRules] = useState("Escalate to human review for fund transfers, legal commitments, missing evidence, new counterparties, policy conflicts, high-risk operations, or emergency pause conditions.");
   const [agentWallet, setAgentWallet] = useState("");
@@ -38,9 +40,11 @@ export default function Home() {
   const [actionType, setActionType] = useState("vendor_research");
   const [requestedAction, setRequestedAction] = useState("Compare three public API-monitoring vendors and prepare an unsigned recommendation memo. Do not make a purchase or bind the organization.");
   const [evidenceUrls, setEvidenceUrls] = useState("https://docs.genlayer.com, https://portal.genlayer.foundation/agent-tank/");
-  const [declaredCost, setDeclaredCost] = useState("0 USDC; research only");
+  const [declaredCost, setDeclaredCost] = useState("0");
   const [context, setContext] = useState("The requester needs a shortlist for uptime monitoring. No private credentials, payments, or production changes are involved.");
   const [receiptId, setReceiptId] = useState("");
+  const [executionReference, setExecutionReference] = useState("demo-vendor-research-001");
+  const [executionId, setExecutionId] = useState("");
   const [record, setRecord] = useState("");
   const [timeline, setTimeline] = useState("");
   const [pack, setPack] = useState("");
@@ -104,6 +108,25 @@ export default function Home() {
       await loadRecord("receipt", id);
       setStatus("accepted");
       setMessage(`request_action_authorization accepted; generated receipt: ${id}. Transaction: ${hash}`);
+    } catch (error) {
+      fail(error);
+    }
+  }
+
+  async function executeAuthorizedAction() {
+    if (!wallet) return fail("Connect a wallet before executing an authorized action.");
+    if (!receiptId) return fail("Enter an approving receipt ID first.");
+    try {
+      setStatus("working");
+      const { hash } = await writeAgentMandate(wallet, "execute_authorized_action", [
+        receiptId, requestedAction, declaredCost, executionReference,
+      ]);
+      const id = String(await readLatestExecutionId(wallet));
+      setExecutionId(id);
+      const execution = await readExecution(id, wallet);
+      setRecord(asText(execution));
+      setStatus("accepted");
+      setMessage(`Execution consumed receipt ${receiptId}; generated execution ID: ${id}. Transaction: ${hash}`);
     } catch (error) {
       fail(error);
     }
@@ -175,7 +198,7 @@ export default function Home() {
           <label>Bound agent wallet<input value={agentWallet} onChange={(event) => setAgentWallet(event.target.value)} placeholder="0x..." /></label>
           <label>Mandate text<textarea value={mandateText} onChange={(event) => setMandateText(event.target.value)} /></label>
           <label>Permitted scope<textarea value={scope} onChange={(event) => setScope(event.target.value)} /></label>
-          <label>Spending limit<input value={spendingLimit} onChange={(event) => setSpendingLimit(event.target.value)} /></label>
+          <label>Maximum spend per execution (whole USDC units)<input value={spendingLimit} onChange={(event) => setSpendingLimit(event.target.value)} inputMode="numeric" /></label>
           <label>Evidence requirements<textarea value={evidenceRules} onChange={(event) => setEvidenceRules(event.target.value)} /></label>
           <label>Escalation and pause rules<textarea value={escalationRules} onChange={(event) => setEscalationRules(event.target.value)} /></label>
           <button onClick={createMandate}>Create mandate</button>
@@ -187,9 +210,9 @@ export default function Home() {
         <div className="panel">
           <div className="panel-title"><span>02</span><h2>Authorize action</h2></div>
           <label>Action type<input value={actionType} onChange={(event) => setActionType(event.target.value)} /></label>
-          <label>Requested action<textarea value={requestedAction} onChange={(event) => setRequestedAction(event.target.value)} /></label>
-          <label>Evidence URLs, comma-separated<textarea value={evidenceUrls} onChange={(event) => setEvidenceUrls(event.target.value)} /></label>
-          <label>Declared cost<input value={declaredCost} onChange={(event) => setDeclaredCost(event.target.value)} /></label>
+          <label>Exact execution payload<textarea value={requestedAction} onChange={(event) => setRequestedAction(event.target.value)} /></label>
+          <label>Evidence URLs, comma-separated (2+ independent HTTPS sources)<textarea value={evidenceUrls} onChange={(event) => setEvidenceUrls(event.target.value)} /></label>
+          <label>Declared spend (whole USDC units)<input value={declaredCost} onChange={(event) => setDeclaredCost(event.target.value)} inputMode="numeric" /></label>
           <label>Execution context<textarea value={context} onChange={(event) => setContext(event.target.value)} /></label>
           <button onClick={authorizeAction}>Request consensus authorization</button>
           <div className="divider" />
@@ -198,6 +221,11 @@ export default function Home() {
             <button className="secondary" onClick={() => loadRecord("receipt", receiptId)}>Read receipt</button>
             <button className="secondary" onClick={readTimeline}>Read timeline</button>
           </div>
+          <div className="divider" />
+          <label>Execution reference<input value={executionReference} onChange={(event) => setExecutionReference(event.target.value)} /></label>
+          <button onClick={executeAuthorizedAction}>Execute authorized action</button>
+          <label>Contract-generated execution ID<input value={executionId} onChange={(event) => setExecutionId(event.target.value)} placeholder="exec_..." /></label>
+          <button className="secondary" onClick={() => readExecution(executionId, wallet ?? undefined).then((value) => setRecord(asText(value))).catch(fail)}>Read execution</button>
         </div>
 
         <aside className="record">
@@ -206,8 +234,8 @@ export default function Home() {
           <pre>{record || "No record loaded yet."}</pre>
           <ul>
             <li>Persistent mandate registry with owner and bound-agent controls</li>
-            <li>Consensus receipts tied to contract-generated IDs</li>
-            <li>Evidence URL commitments and execution context hashes</li>
+            <li>Approving receipts are one-time execution gates with exact payload and spend checks</li>
+            <li>Validators fetch two independent HTTPS sources and commit snapshot hashes</li>
             <li>Emergency pause and agent rotation paths</li>
           </ul>
         </aside>

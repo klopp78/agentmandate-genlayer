@@ -17,8 +17,11 @@ export const readMandate = (id: string, account?: WalletAddress) => read("get_ma
 export const readReceipt = (id: string, account?: WalletAddress) => read("get_receipt", [id], account);
 export const readEvidencePack = (id: string, account?: WalletAddress) => read("get_evidence_pack", [id], account);
 export const readMandateReceipts = (id: string, account?: WalletAddress) => read("get_mandate_receipts", [id], account);
+export const readExecution = (id: string, account?: WalletAddress) => read("get_execution", [id], account);
+export const readReceiptExecution = (id: string, account?: WalletAddress) => read("get_receipt_execution", [id], account);
 export const readLatestMandateId = (account?: WalletAddress) => read("get_latest_mandate_id", [], account);
 export const readLatestReceiptId = (account?: WalletAddress) => read("get_latest_receipt_id", [], account);
+export const readLatestExecutionId = (account?: WalletAddress) => read("get_latest_execution_id", [], account);
 
 export async function writeAgentMandate(account: WalletAddress, functionName: string, args: string[]) {
   const sdk = client(account);
