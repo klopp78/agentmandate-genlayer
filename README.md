@@ -17,8 +17,8 @@ This Agent Tank revision targets Studio Next:
 - SDK: `genlayer-js@2.0.0-rc.1`
 - Transaction Kit: `@genlayer/transaction-kit@0.1.0-rc.2`
 
-- Contract: `0xcF17C4e916C5a9BF7c4E660D9654Aaaf80a4475f`
-- Explorer: https://explorer-studio-dev.genlayer.com/address/0xcF17C4e916C5a9BF7c4E660D9654Aaaf80a4475f
+- Contract: `0x9177514caB55a30E2D43deF68C94a1D4a6A22b7b`
+- Explorer: https://explorer-studio-dev.genlayer.com/address/0x9177514caB55a30E2D43deF68C94a1D4a6A22b7b
 - Source: https://github.com/klopp78/agentmandate-genlayer
 
 Replace the contract address after deploying a fresh Studio Next instance.

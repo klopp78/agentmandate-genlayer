@@ -1,32 +1,34 @@
-# { "Depends": "py-genlayer:1jb45aa8ynh2a9c9xn3b7qqh8sm5q93hwfp7jqmwsfhh8jpz09h6" }
+# v0.3.0
+# { "Depends": "py-genlayer:5jycge4q8k23462jtb0b9fyey1s9qz928sz2nbrd9mg4sxqg2qng" }
 """Consensus-gated execution mandates for autonomous AI agents."""
 
-from genlayer import *
+import genlayer as gl
+from genlayer.types import *
 import hashlib
 import json
 
 
-class AgentMandate(gl.Contract):
+class AgentMandate(gl.contract.Contract):
     """Mandates, independently verified evidence receipts, and gated executions."""
 
-    mandate_count: u64
-    receipt_count: u64
-    execution_count: u64
-    mandate_ids: DynArray[str]
-    receipt_ids: DynArray[str]
-    execution_ids: DynArray[str]
-    mandates: TreeMap[str, str]
-    mandate_owners: TreeMap[str, str]
-    mandate_agents: TreeMap[str, str]
-    receipts: TreeMap[str, str]
-    executions: TreeMap[str, str]
-    mandate_receipts: TreeMap[str, str]
-    receipt_executions: TreeMap[str, str]
+    mandate_count: u256
+    receipt_count: u256
+    execution_count: u256
+    mandate_ids: gl.storage.DynArray[str]
+    receipt_ids: gl.storage.DynArray[str]
+    execution_ids: gl.storage.DynArray[str]
+    mandates: gl.storage.TreeMap[str, str]
+    mandate_owners: gl.storage.TreeMap[str, str]
+    mandate_agents: gl.storage.TreeMap[str, str]
+    receipts: gl.storage.TreeMap[str, str]
+    executions: gl.storage.TreeMap[str, str]
+    mandate_receipts: gl.storage.TreeMap[str, str]
+    receipt_executions: gl.storage.TreeMap[str, str]
 
     def __init__(self):
-        self.mandate_count = u64(0)
-        self.receipt_count = u64(0)
-        self.execution_count = u64(0)
+        self.mandate_count = u256(0)
+        self.receipt_count = u256(0)
+        self.execution_count = u256(0)
 
     @gl.public.view
     def get_mandate(self, mandate_id: str) -> str:
@@ -104,7 +106,7 @@ class AgentMandate(gl.Contract):
         escalation_rules = _require_text(escalation_rules, "invalid_escalation_rules", 20, 2000)
         spend_cap = _units(max_spend_units, "invalid_spend_cap")
         owner, agent = _wallet(gl.message.sender_address), _wallet(agent_wallet)
-        self.mandate_count = u64(int(self.mandate_count) + 1)
+        self.mandate_count = u256(int(self.mandate_count) + 1)
         mandate_id = "mand_" + _sha256(owner + "|" + title + "|" + str(self.mandate_count))[:20]
         risk_policy = permitted_scope + "|" + str(spend_cap) + "|" + escalation_rules
         record = {
@@ -170,7 +172,7 @@ class AgentMandate(gl.Contract):
             return proposed["decision"] == independent["decision"] and proposed["action_hash"] == independent["action_hash"] and proposed["mandate_hash"] == independent["mandate_hash"] and proposed["evidence_bundle_hash"] == independent["evidence_bundle_hash"] and proposed["verified_source_count"] == independent["verified_source_count"] and proposed["required_escalation"] == independent["required_escalation"] and abs(int(proposed["confidence"]) - int(independent["confidence"])) <= 15
 
         result = _parse_decision(gl.vm.run_nondet_unsafe(leader_fn, validator_fn))
-        self.receipt_count = u64(int(self.receipt_count) + 1)
+        self.receipt_count = u256(int(self.receipt_count) + 1)
         receipt_id = "rcpt_" + _sha256(action_hash + "|" + str(self.receipt_count))[:20]
         result.update({
             "schema_version": "agentmandate.receipt.v2", "receipt_id": receipt_id, "mandate_id": mandate_id,
@@ -207,7 +209,7 @@ class AgentMandate(gl.Contract):
             raise Exception("execution_spend_not_receipt_bound")
         if exact_spend > int(mandate["max_spend_units"]):
             raise Exception("execution_spend_exceeds_mandate_cap")
-        self.execution_count = u64(int(self.execution_count) + 1)
+        self.execution_count = u256(int(self.execution_count) + 1)
         execution_id = "exec_" + _sha256(receipt_id + "|" + reference + "|" + str(self.execution_count))[:20]
         execution = {
             "schema_version": "agentmandate.execution.v2", "execution_id": execution_id, "receipt_id": receipt_id,
@@ -353,5 +355,5 @@ def _dump(value) -> str:
     return json.dumps(value, sort_keys=True, separators=(",", ":"))
 
 
-def _latest(values: DynArray[str]) -> str:
+def _latest(values: gl.storage.DynArray[str]) -> str:
     return "" if len(values) == 0 else values[len(values) - 1]
