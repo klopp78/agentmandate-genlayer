@@ -1,10 +1,6 @@
 # AgentMandate for GenLayer
 
-## Receipt-gated execution and verified evidence
-
-AgentMandate v2 does not treat a verdict as an informational log. A bound agent can call `execute_authorized_action` only with a one-time `approve` receipt, the exact payload and spend amount committed in that receipt, and an active mandate. Replayed receipts, `review` or `reject` verdicts, escalations, altered payloads, and altered spend amounts all fail on-chain.
-
-Before a receipt is written, every validator independently renders two to four distinct HTTPS sources with `gl.nondet.web.render`. The receipt stores the committed URL, host, URL hash, snapshot hash, excerpt, and evidence-bundle hash that informed consensus.
+## Agent Tank Studio Next build
 
 AgentMandate is a GenLayer-native authorization layer for autonomous AI agents.
 A human creates an enforceable mandate with permitted scope, spending limits,
@@ -12,9 +8,33 @@ required evidence, escalation rules, and an emergency pause path. A bound agent
 then asks the contract whether a proposed action is allowed. GenLayer validators
 evaluate the action against the mandate and write a durable consensus receipt.
 
+This Agent Tank revision targets Studio Next:
+
+- Network: Studio Next
+- Chain ID: `61997`
+- RPC: `https://studio-next.genlayer.com/api`
+- Explorer: `https://explorer-studio-dev.genlayer.com/`
+- SDK: `genlayer-js@2.0.0-rc.1`
+- Transaction Kit: `@genlayer/transaction-kit@0.1.0-rc.2`
+
 - Contract: `0xcF17C4e916C5a9BF7c4E660D9654Aaaf80a4475f`
-- Explorer: https://explorer-studio.genlayer.com/address/0xcF17C4e916C5a9BF7c4E660D9654Aaaf80a4475f
+- Explorer: https://explorer-studio-dev.genlayer.com/address/0xcF17C4e916C5a9BF7c4E660D9654Aaaf80a4475f
 - Source: https://github.com/klopp78/agentmandate-genlayer
+
+Replace the contract address after deploying a fresh Studio Next instance.
+
+## Receipt-gated execution and verified evidence
+
+AgentMandate does not treat a verdict as an informational log. A bound agent can
+call `execute_authorized_action` only with a one-time `approve` receipt, the
+exact payload and spend amount committed in that receipt, and an active mandate.
+Replayed receipts, `review` or `reject` verdicts, escalations, altered payloads,
+and altered spend amounts all fail on-chain.
+
+Before a receipt is written, every validator independently renders two to four
+distinct HTTPS sources with `gl.nondet.web.render`. The receipt stores the
+committed URL, host, URL hash, snapshot hash, excerpt, and evidence-bundle hash
+that informed consensus.
 
 ## Product flow
 
@@ -61,3 +81,13 @@ accepting the write.
 python scripts/check_contract.py
 npm run build
 ```
+
+## Portal checklist
+
+- Submit as an Agent Tank project, not a normal static listing.
+- Use the Studio Next explorer contract URL from the fresh deployment.
+- Include the GitHub repository URL.
+- Include a demo video URL. For Agent Tank the video is mandatory even if the
+  Portal field says optional.
+- In the description, state that the frontend calls the deployed contract and
+  does not compute local allow or deny results.

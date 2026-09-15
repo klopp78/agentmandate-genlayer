@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import {
   AGENT_MANDATE_ADDRESS,
+  AGENT_MANDATE_EXPLORER,
   readEvidencePack,
   readExecution,
   readLatestMandateId,
@@ -21,14 +22,13 @@ declare global {
 
 type Status = "ready" | "working" | "accepted" | "error";
 
-const explorer = `https://explorer-studio.genlayer.com/address/${AGENT_MANDATE_ADDRESS}`;
 const github = "https://github.com/klopp78/agentmandate-genlayer";
 const asText = (value: unknown) => typeof value === "string" ? value : JSON.stringify(value, null, 2);
 
 export default function Home() {
   const [wallet, setWallet] = useState<WalletAddress | null>(null);
   const [status, setStatus] = useState<Status>("ready");
-  const [message, setMessage] = useState("Connect a Studio wallet to create an enforceable AI-agent mandate.");
+  const [message, setMessage] = useState("Connect a Studio Next wallet to create an enforceable AI-agent mandate.");
   const [title, setTitle] = useState("Treasury Research Agent Mandate");
   const [mandateText, setMandateText] = useState("The agent may prepare public-market research, compare vendors, and draft small operational transactions. It must not transfer funds, sign contracts, publish external statements, access private accounts, or exceed the declared spending limit without explicit human escalation.");
   const [scope, setScope] = useState("Allowed scope: research public sources, prepare vendor shortlists, draft unsigned transactions, and request approval for operational actions linked to this mandate.");
@@ -172,16 +172,16 @@ export default function Home() {
   return (
     <main>
       <header>
-        <div><span className="mark">AM</span><span className="eyebrow">Agent Tank Build</span></div>
+        <div><span className="mark">AM</span><span className="eyebrow">Agent Tank · Studio Next</span></div>
         <button className="wallet" onClick={connect}>{wallet ? `${wallet.slice(0, 6)}...${wallet.slice(-4)}` : "Connect wallet"}</button>
       </header>
 
       <section className="intro">
         <p className="eyebrow">Consensus authorization for the agentic economy</p>
         <h1>AgentMandate</h1>
-        <p>Create enforceable permission boundaries for AI agents, require validators to fetch the evidence behind a request, and execute only through one-time approving receipts.</p>
+        <p>Create enforceable permission boundaries for AI agents, require validators to fetch the evidence behind a request, and execute only through one-time approving receipts on Studio Next.</p>
         <div className="links">
-          <a href={explorer} target="_blank">Studio contract</a>
+          <a href={AGENT_MANDATE_EXPLORER} target="_blank">Studio Next contract</a>
           <a href={github} target="_blank">Source code and tests</a>
         </div>
       </section>
@@ -189,6 +189,20 @@ export default function Home() {
       <section className="status" data-state={status}>
         <strong>{status === "working" ? "Working" : status === "accepted" ? "Accepted" : status === "error" ? "Needs attention" : "Ready"}</strong>
         <span>{message}</span>
+      </section>
+
+      <section className="agent-tank">
+        <div>
+          <span className="eyebrow">Hackathon readiness</span>
+          <h2>Built for Agent Tank review</h2>
+          <p>The app uses the Studio Next chain, the GenLayer RC SDK, and a real contract flow: create mandate, request consensus authorization, then consume an approving receipt before execution.</p>
+        </div>
+        <ul>
+          <li>Network: Studio Next, chain ID 61997</li>
+          <li>Execution requires an approving receipt and exact payload/spend match</li>
+          <li>Validators fetch and hash independent HTTPS evidence snapshots</li>
+          <li>Evidence packs are exportable from contract storage for review</li>
+        </ul>
       </section>
 
       <section className="workspace">

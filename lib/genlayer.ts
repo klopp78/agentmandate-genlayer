@@ -1,12 +1,13 @@
 import { createClient } from "genlayer-js";
-import { studionet } from "genlayer-js/chains";
+import { studioDevnet } from "genlayer-js/chains";
 import { TransactionStatus } from "genlayer-js/types";
 
 export const AGENT_MANDATE_ADDRESS = "0xcF17C4e916C5a9BF7c4E660D9654Aaaf80a4475f" as const;
+export const AGENT_MANDATE_EXPLORER = `https://explorer-studio-dev.genlayer.com/address/${AGENT_MANDATE_ADDRESS}` as const;
 export type WalletAddress = `0x${string}`;
 
 function client(account?: WalletAddress) {
-  return createClient({ chain: studionet, account });
+  return createClient({ chain: studioDevnet, account });
 }
 
 function read(functionName: string, args: string[], account?: WalletAddress) {
@@ -25,7 +26,7 @@ export const readLatestExecutionId = (account?: WalletAddress) => read("get_late
 
 export async function writeAgentMandate(account: WalletAddress, functionName: string, args: string[]) {
   const sdk = client(account);
-  await sdk.connect("studionet");
+  await sdk.connect("studioDevnet");
   const hash = await sdk.writeContract({ address: AGENT_MANDATE_ADDRESS, functionName, args, value: BigInt(0), leaderOnly: false });
   const receipt = await sdk.waitForTransactionReceipt({ hash, status: TransactionStatus.ACCEPTED });
   return { hash, receipt };
